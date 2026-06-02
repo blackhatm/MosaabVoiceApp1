@@ -19,13 +19,10 @@ jobs:
     - name: Extract Project Files
       run: |
         sudo apt-get install -y unzip
-        # فك ضغط الملف مهما كان اسمه الذي يحتوي على كلمة صوتية
-        unzip -q "*صوتية*.zip" -d ./project_extracted || true
-        # نقل الملفات المفتوحة للمجلد الرئيسي لتشغيل البناء
-        cp -r project_extracted/*/. . 2>/dev/null || cp -r project_extracted/. . 2>/dev/null || true
+        unzip -q "*صوتية*.zip" -d . || true
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew || true
+    - name: Generate Gradle Wrapper
+      run: gradle wrapper
 
     - name: Build with Gradle
       run: ./gradlew assembleDebug
@@ -34,5 +31,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: my-app-apk
-        path: app/build/outputs/apk/debug/*.apk
+        path: "**/build/outputs/apk/debug/*.apk"
         
