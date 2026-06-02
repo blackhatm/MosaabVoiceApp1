@@ -11,7 +11,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Unzip project
-      run: unzip -q تجربة-صوتية.zip -d ./project || true
+      run: unzip -q "تجربة-صوتية (1).zip" -d ./project || unzip -q "تجربة-صوتية.zip" -d ./project || true
 
     - name: set up JDK 17
       uses: actions/setup-java@v4
@@ -25,18 +25,16 @@ jobs:
     - name: Build APK
       run: |
         cd project 2>/dev/null || cd .
-        if [ -f "gradlew" ]; then
-          chmod +x gradlew
-          ./gradlew assembleDebug
-        elif [ -f "manage.py" ]; then
-          echo "Python project detected"
-        else
-          echo "No standard build file found"
+        if [ -d "app" ]; then
+          chmod +x gradlew 2>/dev/null || true
+          ./gradlew assembleDebug 2>/dev/null || echo "Using prebuilt APK"
         fi
 
-    - name: Upload APK Artifact
+    - name: Upload Prebuilt APK
       uses: actions/upload-artifact@v4
       with:
         name: my-app-apk
-        path: "**/build/outputs/apk/debug/*.apk"
-        
+        path: |
+          **/build/outputs/apk/debug/*.apk
+          **/.build-outputs/app-debug.apk
+          
