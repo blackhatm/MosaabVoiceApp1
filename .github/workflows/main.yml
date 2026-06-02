@@ -9,16 +9,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Force Unzip accurately
+
+    - name: set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Extract Project Files
       run: |
         sudo apt-get install -y unzip
-        unzip -q "*صوتية*.zip" -d ./project || true
+        # فك ضغط الملف مهما كان اسمه الذي يحتوي على كلمة صوتية
+        unzip -q "*صوتية*.zip" -d ./project_extracted || true
+        # نقل الملفات المفتوحة للمجلد الرئيسي لتشغيل البناء
+        cp -r project_extracted/*/. . 2>/dev/null || cp -r project_extracted/. . 2>/dev/null || true
 
-    - name: Search and Upload APK Artifact
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew || true
+
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug
+
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: my-app-apk
-        path: |
-          **/*.apk
-          
+        path: app/build/outputs/apk/debug/*.apk
+        
